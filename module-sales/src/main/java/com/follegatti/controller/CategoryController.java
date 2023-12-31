@@ -4,6 +4,7 @@ import com.follegatti.model.Category;
 import com.follegatti.service.CategoryServiceImpl;
 import com.follegatti.service.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,23 +16,28 @@ public class CategoryController {
     @Autowired
     private ICategoryService service;
     @GetMapping
-    public List<Category> readAll() throws Exception{
-        return service.readAll();
+    public ResponseEntity<List<Category>>  readAll() throws Exception{
+        List<Category> list = service.readAll();
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
     @GetMapping("/{id}")
-    public Category readById(@PathVariable("id") Integer id) throws Exception{
-        return service.readById(id);
+    public ResponseEntity<Category> readById(@PathVariable("id") Integer id) throws Exception{
+        Category obj = service.readById(id);
+        return new ResponseEntity<>(obj, HttpStatus.OK);
     }
     @PostMapping
-    public Category create(@RequestBody Category category) throws Exception{
-        return service.save(category);
+    public ResponseEntity<Category> create(@RequestBody Category category) throws Exception{
+        Category obj = service.save(category);
+        return new ResponseEntity<>(obj, HttpStatus.CREATED);
     }
     @PutMapping("/{id}")
-    public Category update(@RequestBody Category category, @PathVariable Integer id) throws Exception{
-        return service.update(category, id);
+    public ResponseEntity<Category> update(@RequestBody Category category, @PathVariable Integer id) throws Exception{
+        Category obj = service.update(category, id);
+        return new ResponseEntity<>(obj, HttpStatus.OK);
     }
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") Integer id) throws Exception{
+    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) throws Exception{
          service.dalate(id);
+         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
