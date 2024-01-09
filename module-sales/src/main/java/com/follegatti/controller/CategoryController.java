@@ -1,9 +1,12 @@
 package com.follegatti.controller;
 
+import com.follegatti.dto.CategoryDTO;
 import com.follegatti.model.Category;
-import com.follegatti.service.CategoryServiceImpl;
 import com.follegatti.service.ICategoryService;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,32 +15,42 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
+@RequiredArgsConstructor
 public class CategoryController {
-    @Autowired
-    private ICategoryService service;
-    @GetMapping
-    public ResponseEntity<List<Category>>  readAll() throws Exception{
-        List<Category> list = service.readAll();
+    private final ICategoryService service;
+    @Qualifier("categoryMapper")
+    private final ModelMapper mapper;
+    @GetMapping()
+    public ResponseEntity<List<CategoryDTO>>  readAll() throws Exception{
+       // ModelMapper mapper = new ModelMapper();
+        List<CategoryDTO> list = service.readAll().stream().map(e ->convertToDto(e)).toList();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Category> readById(@PathVariable("id") Integer id) throws Exception{
+    public ResponseEntity<CategoryDTO> readById(@PathVariable("id") Integer id) throws Exception{
         Category obj = service.readById(id);
-        return new ResponseEntity<>(obj, HttpStatus.OK);
+        return new ResponseEntity<>(convertToDto(obj), HttpStatus.OK);
     }
     @PostMapping
-    public ResponseEntity<Category> create(@RequestBody Category category) throws Exception{
-        Category obj = service.save(category);
-        return new ResponseEntity<>(obj, HttpStatus.CREATED);
+    public ResponseEntity<CategoryDTO> create(@RequestBody CategoryDTO dto) throws Exception{
+        Category obj = service.save(convertToEntity(dto));
+        return new ResponseEntity<>(convertToDto(obj), HttpStatus.CREATED);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Category> update(@RequestBody Category category, @PathVariable Integer id) throws Exception{
-        Category obj = service.update(category, id);
-        return new ResponseEntity<>(obj, HttpStatus.OK);
+    public ResponseEntity<CategoryDTO> update(@RequestBody CategoryDTO dto, @PathVariable Integer id) throws Exception{
+        Category obj = service.update(convertToEntity(dto), id);
+        return new ResponseEntity<>(convertToDto(obj), HttpStatus.OK);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") Integer id) throws Exception{
          service.dalate(id);
          return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    private CategoryDTO convertToDto(Category obj){
+        return mapper.map(obj, CategoryDTO.class);
+    }
+    private Category convertToEntity(CategoryDTO dto){
+        return mapper.map(dto, Category.class);
     }
 }
