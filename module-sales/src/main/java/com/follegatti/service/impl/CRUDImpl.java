@@ -1,5 +1,6 @@
 package com.follegatti.service.impl;
 
+import com.follegatti.exception.ModelNotFoundException;
 import com.follegatti.repo.IGenericRepo;
 import com.follegatti.service.ICRUD;
 
@@ -24,7 +25,7 @@ public abstract class CRUDImpl<T, ID>  implements ICRUD<T, ID> {
 
     @Override
     public T readById(ID id) throws Exception {
-        return getRepo().findById(id).orElse(null);
+        return getRepo().findById(id).orElseThrow(()-> new ModelNotFoundException("ID NOT FOUND"+id));
     }
 
     @Override
